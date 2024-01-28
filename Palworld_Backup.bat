@@ -7,13 +7,15 @@ set "palworld_path=C:\Steam\steamapps\common\PalServer"
 rem 设置备份路径
 set "backup_path=C:\gameServer\PalServer"
 
+set "datetime.txt=datetime.txt"
+
 rem 设置时间阈值（可以指定小时、天、月、年和分钟）
 set "time_threshold_hours=2"
 set "time_threshold_days=0"
 set "time_threshold_months=0"
 set "time_threshold_years=0"
 set "time_threshold_minutes=0"
-rem 设置备份时间（秒）
+rem 设置备份时间
 set interval=1800
 
 
@@ -36,9 +38,26 @@ set current_second=%timestamp:~4,2%
 
 set foldername=%current_year%-%current_month%-%current_day%_%current_hour%-%current_minute%-%current_second%
 
-xcopy "%palworld_path%\Pal\Saved" "%backup_path%\Backup_%foldername%" /E /H /C /I
-
 echo 当前日期时间：!current_year!-!current_month!-!current_day! !current_hour!:!current_minute!:!current_second!
+
+if not exist "%datetime.txt%" (
+(
+  echo !current_year!-!current_month!-!current_day! !current_hour!:!current_minute!:!current_second!
+) > datetime.txt)
+
+set /p datetime=<datetime.txt
+rem 解析日期和时间
+for /f "tokens=1-6 delims=-: " %%a in ("%datetime%") do (
+  set "saved_year=%%a"
+  set "saved_month=%%b"
+  set "saved_day=%%c"
+  set "saved_hour=%%d"
+  set "saved_minute=%%e"
+  set "saved_second=%%f"
+)
+
+
+xcopy "%palworld_path%\Pal\Saved" "%backup_path%\Backup_%foldername%" /E /H /C /I
 
 rem 转换时间阈值为分钟
 set /a "total_threshold_minutes = time_threshold_years * 525600 + time_threshold_months * 43800 + time_threshold_days * 1440 + time_threshold_hours * 60 + time_threshold_minutes"
@@ -56,15 +75,15 @@ for /d %%i in ("%backup_path%\*") do (
         set "file_minute=!folder_name:~21,2!"
         
         rem 计算日期和时间差值
-        set /a "diff_year=current_year-file_year"
-        set /a "diff_month=current_month-file_month"
-        set /a "diff_day=current_day-file_day"
-        set /a "diff_hour=current_hour-file_hour"
-        if !diff_hour! lss 0 set /a "diff_hour=current_hour+24-file_hour" & set /a "diff_day=diff_day-1"
-        set /a "diff_minute=current_minute-file_minute"
-        if !diff_minute! lss 0 set /a "diff_minute=current_minute+60-file_minute" & set /a "diff_hour=diff_hour-1"
-        set /a "diff_second=current_second-file_second"
-        if !diff_second! lss 0 set /a "diff_second=current_second+60-file_second" & set /a "diff_minute=diff_minute-1"
+        set /a "diff_year=saved_year-file_year"
+        set /a "diff_month=saved_month-file_month"
+        set /a "diff_day=saved_day-file_day"
+        set /a "diff_hour=saved_hour-file_hour"
+        if !diff_hour! lss 0 set /a "diff_hour=saved_hour+24-file_hour" & set /a "diff_day=diff_day-1"
+        set /a "diff_minute=saved_minute-file_minute"
+        if !diff_minute! lss 0 set /a "diff_minute=saved_minute+60-file_minute" & set /a "diff_hour=diff_hour-1"
+        set /a "diff_second=saved_second-file_second"
+        if !diff_second! lss 0 set /a "diff_second=saved_second+60-file_second" & set /a "diff_minute=diff_minute-1"
 
         rem 转换时间差为分钟
         set /a "total_diff_minutes = diff_year * 525600 + diff_month * 43800 + diff_day * 1440 + diff_hour * 60 + diff_minute"
