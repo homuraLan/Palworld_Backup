@@ -67,12 +67,12 @@ for /d %%i in ("%backup_path%\*") do (
     set "folder_name=%%~nxi"
     echo !folder_name! | findstr /r "^Backup_[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]_[0-9][0-9]-[0-9][0-9]-[0-9][0-9].*$" > nul
     if !errorlevel! equ 0 (
-        set /a count+=1
+        
         if !count! geq %backup_count% (
             echo [%date% %time%] 保存最近至少 !less_save! 个存档
             goto :endDelete
         )
-
+        set /a count+=1
         set "file_year=!folder_name:~7,4!"
         set "file_month=!folder_name:~12,2!"
         set "file_day=!folder_name:~15,2!"
