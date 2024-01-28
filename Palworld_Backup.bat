@@ -13,7 +13,7 @@ set "time_threshold_days=0"
 set "time_threshold_months=0"
 set "time_threshold_years=0"
 set "time_threshold_minutes=0"
-rem 设置备份时间
+rem 设置备份时间（秒）
 set interval=1800
 
 
